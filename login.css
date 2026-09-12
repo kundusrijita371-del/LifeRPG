@@ -1,0 +1,795 @@
+/* ═══════════════════════════════════════════════════════════
+   LIFE RPG — Minecraft-Themed Login Screen
+   Pixel-art blocks, animated terrain, falling blocks,
+   experience orbs, torches, and clouds
+   ═══════════════════════════════════════════════════════════ */
+
+/* ─── Login Overlay ─── */
+.mc-login-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  overflow: hidden;
+  background: linear-gradient(
+    180deg,
+    hsl(210, 60%, 18%) 0%,
+    hsl(210, 50%, 28%) 30%,
+    hsl(200, 45%, 45%) 60%,
+    hsl(30, 55%, 55%) 85%,
+    hsl(25, 60%, 50%) 100%
+  );
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.mc-login-overlay.fade-out {
+  opacity: 0;
+  transform: scale(1.05);
+  pointer-events: none;
+}
+
+/* ─── Sky Layer ─── */
+.mc-sky {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+/* Stars */
+.mc-stars {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.mc-star {
+  position: absolute;
+  background: #fff;
+  border-radius: 0;
+  image-rendering: pixelated;
+  animation: mc-twinkle var(--twinkle-dur, 3s) ease-in-out infinite var(--twinkle-delay, 0s);
+}
+
+@keyframes mc-twinkle {
+  0%, 100% { opacity: var(--star-opacity, 0.3); }
+  50% { opacity: 1; }
+}
+
+/* Sun */
+.mc-sun {
+  position: absolute;
+  top: 8%;
+  right: 12%;
+  width: 80px;
+  height: 80px;
+  background:
+    /* Pixelated sun core */
+    linear-gradient(135deg, hsl(45, 100%, 70%), hsl(40, 100%, 60%));
+  border-radius: 2px;
+  image-rendering: pixelated;
+  box-shadow:
+    0 0 40px hsla(45, 100%, 65%, 0.6),
+    0 0 80px hsla(45, 100%, 60%, 0.3),
+    0 0 120px hsla(40, 100%, 55%, 0.15);
+  animation: mc-sun-pulse 4s ease-in-out infinite;
+  /* Pixel look */
+  clip-path: polygon(
+    10% 0%, 90% 0%, 100% 10%, 100% 90%,
+    90% 100%, 10% 100%, 0% 90%, 0% 10%
+  );
+}
+
+@keyframes mc-sun-pulse {
+  0%, 100% { box-shadow: 0 0 40px hsla(45, 100%, 65%, 0.6), 0 0 80px hsla(45, 100%, 60%, 0.3); transform: scale(1); }
+  50% { box-shadow: 0 0 60px hsla(45, 100%, 65%, 0.8), 0 0 100px hsla(45, 100%, 60%, 0.4); transform: scale(1.03); }
+}
+
+/* ─── Clouds ─── */
+.mc-cloud {
+  position: absolute;
+  background: hsla(0, 0%, 100%, 0.85);
+  image-rendering: pixelated;
+  border-radius: 2px;
+  z-index: 1;
+}
+
+/* Cloud shapes using box-shadow (pixelated look) */
+.mc-cloud-1 {
+  top: 12%;
+  width: 80px;
+  height: 16px;
+  box-shadow:
+    16px -16px 0 0 hsla(0, 0%, 100%, 0.85),
+    32px -16px 0 0 hsla(0, 0%, 100%, 0.85),
+    48px -16px 0 0 hsla(0, 0%, 100%, 0.85),
+    -16px 0 0 0 hsla(0, 0%, 100%, 0.85),
+    80px 0 0 0 hsla(0, 0%, 100%, 0.85);
+  animation: mc-cloud-drift 30s linear infinite;
+  animation-delay: 0s;
+}
+
+.mc-cloud-2 {
+  top: 20%;
+  width: 64px;
+  height: 16px;
+  box-shadow:
+    16px -16px 0 0 hsla(0, 0%, 100%, 0.75),
+    32px -16px 0 0 hsla(0, 0%, 100%, 0.75),
+    -16px 0 0 0 hsla(0, 0%, 100%, 0.75),
+    64px 0 0 0 hsla(0, 0%, 100%, 0.75);
+  animation: mc-cloud-drift 40s linear infinite;
+  animation-delay: -15s;
+  opacity: 0.7;
+}
+
+.mc-cloud-3 {
+  top: 8%;
+  width: 96px;
+  height: 16px;
+  box-shadow:
+    16px -16px 0 0 hsla(0, 0%, 100%, 0.8),
+    32px -16px 0 0 hsla(0, 0%, 100%, 0.8),
+    48px -16px 0 0 hsla(0, 0%, 100%, 0.8),
+    64px -16px 0 0 hsla(0, 0%, 100%, 0.8),
+    -16px 0 0 0 hsla(0, 0%, 100%, 0.8),
+    96px 0 0 0 hsla(0, 0%, 100%, 0.8);
+  animation: mc-cloud-drift 35s linear infinite;
+  animation-delay: -8s;
+  opacity: 0.6;
+}
+
+.mc-cloud-4 {
+  top: 25%;
+  width: 48px;
+  height: 16px;
+  box-shadow:
+    16px -16px 0 0 hsla(0, 0%, 100%, 0.7),
+    -16px 0 0 0 hsla(0, 0%, 100%, 0.7),
+    48px 0 0 0 hsla(0, 0%, 100%, 0.7);
+  animation: mc-cloud-drift 25s linear infinite;
+  animation-delay: -20s;
+  opacity: 0.5;
+}
+
+@keyframes mc-cloud-drift {
+  0% { left: -150px; }
+  100% { left: calc(100% + 50px); }
+}
+
+/* ─── Falling Blocks Canvas ─── */
+#mc-falling-blocks {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* ─── Experience Orbs Canvas ─── */
+#mc-xp-orbs {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* ─── Terrain ─── */
+.mc-terrain {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 4;
+  image-rendering: pixelated;
+}
+
+.mc-terrain-row {
+  display: flex;
+  width: 100%;
+  height: 32px;
+  overflow: hidden;
+}
+
+.mc-terrain-cell {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  image-rendering: pixelated;
+  border-radius: 0;
+}
+
+/* Grass block cell */
+.mc-cell-grass {
+  background:
+    /* Green top stripe */
+    linear-gradient(180deg,
+      hsl(100, 55%, 40%) 0%,
+      hsl(100, 55%, 40%) 30%,
+      hsl(25, 55%, 38%) 30%,
+      hsl(25, 50%, 35%) 100%
+    );
+  box-shadow: inset 0 0 0 1px hsla(0, 0%, 0%, 0.15);
+  position: relative;
+}
+
+.mc-cell-grass::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg,
+    hsl(100, 60%, 45%) 0%, hsl(100, 50%, 38%) 50%, hsl(100, 55%, 42%) 100%
+  );
+}
+
+/* Dirt cell */
+.mc-cell-dirt {
+  background: linear-gradient(
+    135deg,
+    hsl(25, 55%, 35%) 0%,
+    hsl(25, 50%, 30%) 40%,
+    hsl(25, 45%, 28%) 100%
+  );
+  box-shadow: inset 0 0 0 1px hsla(0, 0%, 0%, 0.12);
+  position: relative;
+}
+
+/* Add random texture dots */
+.mc-cell-dirt::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 25% 30%, hsla(25, 40%, 22%, 0.6) 2px, transparent 2px),
+    radial-gradient(circle at 70% 60%, hsla(25, 40%, 22%, 0.5) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 50% 80%, hsla(25, 40%, 22%, 0.4) 1px, transparent 1px);
+}
+
+/* Stone cell */
+.mc-cell-stone {
+  background: linear-gradient(
+    135deg,
+    hsl(0, 0%, 40%) 0%,
+    hsl(0, 0%, 35%) 30%,
+    hsl(0, 0%, 30%) 100%
+  );
+  box-shadow: inset 0 0 0 1px hsla(0, 0%, 0%, 0.15);
+  position: relative;
+}
+
+.mc-cell-stone::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 30% 40%, hsla(0, 0%, 25%, 0.7) 2px, transparent 2px),
+    radial-gradient(circle at 65% 20%, hsla(0, 0%, 25%, 0.5) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 80% 70%, hsla(0, 0%, 20%, 0.4) 1px, transparent 1px);
+}
+
+/* Terrain entrance animation */
+.mc-terrain-row {
+  animation: mc-terrain-rise 0.8s var(--ease-spring, cubic-bezier(0.34, 1.56, 0.64, 1)) backwards;
+}
+
+.mc-grass-row { animation-delay: 0.2s; }
+.mc-dirt-row:nth-child(2) { animation-delay: 0.1s; }
+.mc-dirt-row:nth-child(3) { animation-delay: 0.05s; }
+.mc-stone-row { animation-delay: 0s; }
+
+@keyframes mc-terrain-rise {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+/* ─── Floating 3D Blocks ─── */
+.mc-float-block {
+  position: absolute;
+  left: var(--x, 10%);
+  top: var(--y, 30%);
+  width: 48px;
+  height: 48px;
+  transform-style: preserve-3d;
+  animation: mc-block-float 4s ease-in-out infinite var(--delay, 0s),
+             mc-block-spin 12s linear infinite var(--delay, 0s);
+  z-index: 5;
+  cursor: pointer;
+  transition: filter 0.3s;
+}
+
+.mc-float-block:hover {
+  filter: brightness(1.3) drop-shadow(0 0 12px hsla(45, 100%, 60%, 0.5));
+  animation-play-state: paused, paused;
+}
+
+@keyframes mc-block-float {
+  0%, 100% { transform: translateY(0) rotateX(-25deg) rotateY(35deg); }
+  50% { transform: translateY(-18px) rotateX(-25deg) rotateY(35deg); }
+}
+
+@keyframes mc-block-spin {
+  0% { --spin: 0deg; }
+  100% { --spin: 360deg; }
+}
+
+.mc-block-face {
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  image-rendering: pixelated;
+  border: 1px solid hsla(0, 0%, 0%, 0.2);
+}
+
+.mc-block-top {
+  transform: rotateX(90deg) translateZ(24px);
+}
+
+.mc-block-front {
+  transform: translateZ(24px);
+}
+
+.mc-block-side {
+  transform: rotateY(90deg) translateZ(24px);
+}
+
+/* Grass Block Colors */
+.mc-grass-top { background: hsl(100, 55%, 40%); }
+.mc-dirt-front {
+  background: linear-gradient(180deg, hsl(100, 55%, 40%) 0%, hsl(100, 55%, 40%) 15%, hsl(25, 55%, 35%) 15%);
+}
+.mc-dirt-side {
+  background: linear-gradient(180deg, hsl(100, 50%, 38%) 0%, hsl(100, 50%, 38%) 15%, hsl(25, 50%, 32%) 15%);
+}
+
+/* Diamond Ore Block Colors */
+.mc-diamond-top {
+  background: hsl(0, 0%, 38%);
+  box-shadow: inset 8px 8px 0 0 hsl(185, 65%, 55%), inset 24px 20px 0 0 hsl(185, 70%, 60%);
+}
+.mc-diamond-front {
+  background: hsl(0, 0%, 35%);
+  box-shadow: inset 6px 12px 0 0 hsl(185, 65%, 50%), inset 28px 30px 0 0 hsl(185, 70%, 58%);
+}
+.mc-diamond-side {
+  background: hsl(0, 0%, 32%);
+  box-shadow: inset 10px 8px 0 0 hsl(185, 60%, 48%), inset 20px 28px 0 0 hsl(185, 65%, 55%);
+}
+
+/* Gold Ore Block Colors */
+.mc-gold-top {
+  background: hsl(0, 0%, 38%);
+  box-shadow: inset 10px 6px 0 0 hsl(42, 80%, 55%), inset 26px 22px 0 0 hsl(42, 85%, 60%);
+}
+.mc-gold-front {
+  background: hsl(0, 0%, 35%);
+  box-shadow: inset 8px 14px 0 0 hsl(42, 80%, 50%), inset 24px 32px 0 0 hsl(42, 85%, 58%);
+}
+.mc-gold-side {
+  background: hsl(0, 0%, 32%);
+  box-shadow: inset 12px 10px 0 0 hsl(42, 75%, 48%), inset 22px 26px 0 0 hsl(42, 80%, 55%);
+}
+
+/* TNT Block Colors */
+.mc-tnt-top {
+  background: hsl(0, 0%, 35%);
+  box-shadow: inset 0 0 0 6px hsl(0, 70%, 45%);
+}
+.mc-tnt-front {
+  background: hsl(0, 65%, 42%);
+  box-shadow: inset 0 12px 0 0 hsl(0, 0%, 30%), inset 0 -12px 0 0 hsl(0, 0%, 30%);
+}
+.mc-tnt-side {
+  background: hsl(0, 60%, 40%);
+  box-shadow: inset 0 12px 0 0 hsl(0, 0%, 28%), inset 0 -12px 0 0 hsl(0, 0%, 28%);
+}
+
+/* ─── Characters ─── */
+.mc-characters {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+}
+
+.mc-steve {
+  position: absolute;
+  bottom: 128px;
+  left: 10%;
+  width: 48px;
+  height: 80px;
+  image-rendering: pixelated;
+  animation: mc-steve-walk 1.2s steps(2) infinite, mc-steve-bob 0.6s ease-in-out infinite;
+}
+
+.mc-creeper {
+  position: absolute;
+  bottom: 128px;
+  right: 12%;
+  width: 40px;
+  height: 64px;
+  image-rendering: pixelated;
+  animation: mc-creeper-peek 5s ease-in-out infinite;
+}
+
+@keyframes mc-steve-walk {
+  0%, 100% { transform: scaleX(1); }
+  50% { transform: scaleX(-1); }
+}
+
+@keyframes mc-steve-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+@keyframes mc-creeper-peek {
+  0%, 40%, 100% { transform: translateX(0); opacity: 0.8; }
+  50%, 90% { transform: translateX(-8px); opacity: 1; }
+  45%, 95% { transform: translateX(4px); opacity: 0.6; }
+}
+
+/* ─── Torches ─── */
+.mc-torch {
+  position: absolute;
+  bottom: 140px;
+  z-index: 7;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.mc-torch-left { left: 28%; }
+.mc-torch-right { right: 28%; }
+
+.mc-torch-stick {
+  width: 6px;
+  height: 28px;
+  background: linear-gradient(180deg, hsl(35, 60%, 50%), hsl(25, 55%, 35%));
+  border-radius: 1px;
+}
+
+.mc-torch-flame {
+  width: 10px;
+  height: 14px;
+  background: radial-gradient(ellipse at center bottom, hsl(45, 100%, 65%), hsl(25, 100%, 50%), transparent);
+  border-radius: 50% 50% 20% 20%;
+  position: relative;
+  top: -2px;
+  animation: mc-flame-flicker 0.3s ease-in-out infinite alternate;
+  box-shadow: 0 0 12px 4px hsla(40, 100%, 55%, 0.5), 0 0 30px 8px hsla(40, 100%, 50%, 0.2);
+}
+
+@keyframes mc-flame-flicker {
+  0% { transform: scaleX(1) scaleY(1); opacity: 0.9; }
+  50% { transform: scaleX(0.85) scaleY(1.1); opacity: 1; }
+  100% { transform: scaleX(1.1) scaleY(0.9); opacity: 0.85; }
+}
+
+/* Torch glow on ground */
+.mc-torch::after {
+  content: '';
+  position: absolute;
+  bottom: -16px;
+  width: 100px;
+  height: 30px;
+  background: radial-gradient(ellipse, hsla(40, 100%, 55%, 0.2), transparent);
+  border-radius: 50%;
+  animation: mc-flame-flicker 0.4s ease-in-out infinite alternate;
+}
+
+/* ─── Login Panel ─── */
+.mc-login-panel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  width: 420px;
+  max-width: 90vw;
+  animation: mc-panel-enter 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+  animation-delay: 0.3s;
+}
+
+@keyframes mc-panel-enter {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8) rotateX(10deg);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1) rotateX(0);
+  }
+}
+
+.mc-panel-inner {
+  background:
+    linear-gradient(135deg, hsla(0, 0%, 15%, 0.92), hsla(0, 0%, 10%, 0.95));
+  border: 3px solid hsl(0, 0%, 25%);
+  border-radius: 4px;
+  padding: 32px 28px;
+  box-shadow:
+    0 0 0 3px hsl(0, 0%, 12%),
+    0 0 0 6px hsl(0, 0%, 8%),
+    0 8px 40px hsla(0, 0%, 0%, 0.6),
+    inset 0 1px 0 hsla(0, 0%, 30%, 0.3);
+  image-rendering: pixelated;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Dirt texture overlay */
+.mc-panel-inner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 30%, hsla(25, 30%, 25%, 0.15) 2px, transparent 2px),
+    radial-gradient(circle at 60% 15%, hsla(25, 30%, 25%, 0.1) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 80% 60%, hsla(25, 30%, 25%, 0.12) 2px, transparent 2px),
+    radial-gradient(circle at 40% 75%, hsla(25, 30%, 25%, 0.08) 1px, transparent 1px),
+    radial-gradient(circle at 10% 80%, hsla(25, 30%, 25%, 0.1) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 70% 40%, hsla(25, 30%, 25%, 0.12) 2px, transparent 2px),
+    radial-gradient(circle at 90% 85%, hsla(25, 30%, 25%, 0.08) 1px, transparent 1px);
+  pointer-events: none;
+}
+
+/* ─── Title ─── */
+.mc-title-wrapper {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.mc-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 2rem;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+  text-shadow:
+    3px 3px 0 hsl(0, 0%, 10%),
+    -1px -1px 0 hsl(0, 0%, 10%),
+    0 0 20px hsla(42, 85%, 58%, 0.3);
+  animation: mc-title-glow 3s ease-in-out infinite;
+}
+
+.mc-title-life {
+  color: hsl(0, 0%, 90%);
+}
+
+.mc-title-rpg {
+  background: linear-gradient(135deg, hsl(42, 90%, 60%), hsl(42, 85%, 72%));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@keyframes mc-title-glow {
+  0%, 100% { text-shadow: 3px 3px 0 hsl(0, 0%, 10%), 0 0 20px hsla(42, 85%, 58%, 0.2); }
+  50% { text-shadow: 3px 3px 0 hsl(0, 0%, 10%), 0 0 30px hsla(42, 85%, 58%, 0.5); }
+}
+
+.mc-subtitle {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.5rem;
+  color: hsl(42, 60%, 60%);
+  letter-spacing: 0.15em;
+  animation: mc-sub-pulse 4s ease-in-out infinite;
+}
+
+@keyframes mc-sub-pulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+/* ─── Form ─── */
+.mc-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.mc-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+}
+
+.mc-label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.55rem;
+  color: hsl(0, 0%, 65%);
+  letter-spacing: 0.08em;
+  text-shadow: 1px 1px 0 hsl(0, 0%, 5%);
+}
+
+.mc-input {
+  width: 100%;
+  padding: 12px 16px;
+  padding-right: 44px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.65rem;
+  color: hsl(0, 0%, 90%);
+  background: hsl(0, 0%, 8%);
+  border: 2px solid hsl(0, 0%, 25%);
+  border-radius: 2px;
+  outline: none;
+  transition: all 0.2s;
+  box-shadow:
+    inset 0 2px 4px hsla(0, 0%, 0%, 0.4),
+    0 1px 0 hsla(0, 0%, 30%, 0.2);
+  letter-spacing: 0.05em;
+}
+
+.mc-input::placeholder {
+  color: hsl(0, 0%, 35%);
+  font-size: 0.55rem;
+}
+
+.mc-input:focus {
+  border-color: hsl(42, 70%, 50%);
+  box-shadow:
+    inset 0 2px 4px hsla(0, 0%, 0%, 0.4),
+    0 0 0 2px hsla(42, 70%, 50%, 0.2),
+    0 0 12px hsla(42, 70%, 50%, 0.15);
+}
+
+.mc-input-icon {
+  position: absolute;
+  right: 12px;
+  bottom: 10px;
+  font-size: 1rem;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+/* ─── Buttons ─── */
+.mc-button {
+  width: 100%;
+  padding: 14px 24px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.7rem;
+  border: 3px solid;
+  border-radius: 2px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.15s;
+  letter-spacing: 0.06em;
+  text-shadow: 1px 1px 0 hsla(0, 0%, 0%, 0.4);
+}
+
+.mc-button:active {
+  transform: translateY(2px);
+}
+
+/* Play Button (Green – Minecraft style) */
+.mc-button-play {
+  background: linear-gradient(180deg, hsl(100, 50%, 45%) 0%, hsl(100, 50%, 38%) 50%, hsl(100, 45%, 30%) 100%);
+  border-color: hsl(100, 40%, 25%);
+  color: white;
+  box-shadow:
+    inset 0 2px 0 hsla(100, 60%, 55%, 0.4),
+    inset 0 -3px 0 hsla(100, 40%, 20%, 0.5),
+    0 3px 8px hsla(0, 0%, 0%, 0.3);
+}
+
+.mc-button-play:hover {
+  background: linear-gradient(180deg, hsl(100, 55%, 52%) 0%, hsl(100, 50%, 42%) 50%, hsl(100, 45%, 34%) 100%);
+  box-shadow:
+    inset 0 2px 0 hsla(100, 60%, 60%, 0.5),
+    inset 0 -3px 0 hsla(100, 40%, 22%, 0.5),
+    0 4px 12px hsla(100, 50%, 40%, 0.3),
+    0 0 20px hsla(100, 50%, 45%, 0.15);
+}
+
+.mc-button-play:active {
+  box-shadow:
+    inset 0 2px 4px hsla(0, 0%, 0%, 0.3),
+    0 1px 2px hsla(0, 0%, 0%, 0.2);
+}
+
+/* Shine sweep on play button */
+.mc-btn-shine {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, hsla(0, 0%, 100%, 0.15), transparent);
+  animation: mc-btn-shine-sweep 3s ease-in-out infinite;
+}
+
+@keyframes mc-btn-shine-sweep {
+  0%, 70%, 100% { left: -100%; }
+  85% { left: 150%; }
+}
+
+/* Secondary Button (Gray stone) */
+.mc-button-secondary {
+  background: linear-gradient(180deg, hsl(0, 0%, 40%) 0%, hsl(0, 0%, 33%) 50%, hsl(0, 0%, 25%) 100%);
+  border-color: hsl(0, 0%, 18%);
+  color: hsl(0, 0%, 75%);
+  box-shadow:
+    inset 0 2px 0 hsla(0, 0%, 50%, 0.3),
+    inset 0 -3px 0 hsla(0, 0%, 15%, 0.5),
+    0 3px 6px hsla(0, 0%, 0%, 0.25);
+}
+
+.mc-button-secondary:hover {
+  background: linear-gradient(180deg, hsl(0, 0%, 48%) 0%, hsl(0, 0%, 38%) 50%, hsl(0, 0%, 28%) 100%);
+  color: hsl(0, 0%, 90%);
+}
+
+/* ─── Version Tag ─── */
+.mc-version {
+  text-align: center;
+  margin-top: 20px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.35rem;
+  color: hsl(0, 0%, 35%);
+  letter-spacing: 0.05em;
+}
+
+/* ─── Screen Shake on Play ─── */
+.mc-login-overlay.screen-shake {
+  animation: mc-screen-shake 0.4s ease;
+}
+
+@keyframes mc-screen-shake {
+  0%, 100% { transform: translate(0); }
+  20% { transform: translate(-4px, 2px); }
+  40% { transform: translate(3px, -2px); }
+  60% { transform: translate(-2px, 3px); }
+  80% { transform: translate(2px, -1px); }
+}
+
+/* ─── Torch Spark Particles ─── */
+.mc-spark {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: hsl(40, 100%, 65%);
+  border-radius: 0;
+  image-rendering: pixelated;
+  pointer-events: none;
+  animation: mc-spark-rise 0.8s ease-out forwards;
+  box-shadow: 0 0 4px hsla(40, 100%, 60%, 0.6);
+}
+
+@keyframes mc-spark-rise {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--sx, 5px), var(--sy, -20px));
+  }
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 480px) {
+  .mc-login-panel {
+    width: 95vw;
+  }
+
+  .mc-title {
+    font-size: 1.4rem;
+  }
+
+  .mc-float-block {
+    width: 36px;
+    height: 36px;
+  }
+
+  .mc-block-face {
+    width: 36px;
+    height: 36px;
+  }
+
+  .mc-torch-left { left: 10%; }
+  .mc-torch-right { right: 10%; }
+}

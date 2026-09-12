@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Life RPG — Gamify your real life with quests, XP, gold, and skill trees. Turn everyday tasks into an epic adventure.">
+  <title>LIFE RPG — Gamify Your Reality</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="login.css">
+</head>
+<body>
+
+  <!-- ═══════════════ MINECRAFT LOGIN SCREEN ═══════════════ -->
+  <div class="mc-login-overlay" id="mc-login-overlay">
+    <div class="mc-sky">
+      <div class="mc-stars" id="mc-stars"></div>
+      <div class="mc-cloud mc-cloud-1"></div>
+      <div class="mc-cloud mc-cloud-2"></div>
+      <div class="mc-cloud mc-cloud-3"></div>
+      <div class="mc-cloud mc-cloud-4"></div>
+      <div class="mc-sun"></div>
+    </div>
+    <canvas id="mc-falling-blocks"></canvas>
+    <canvas id="mc-xp-orbs"></canvas>
+    <div class="mc-terrain">
+      <div class="mc-terrain-row mc-grass-row" id="mc-grass-row"></div>
+      <div class="mc-terrain-row mc-dirt-row" id="mc-dirt-row-1"></div>
+      <div class="mc-terrain-row mc-dirt-row" id="mc-dirt-row-2"></div>
+      <div class="mc-terrain-row mc-stone-row" id="mc-stone-row"></div>
+    </div>
+    <div class="mc-floating-blocks" id="mc-floating-blocks">
+      <div class="mc-float-block mc-block-grass" style="--delay:0s;--x:8%;--y:25%;">
+        <div class="mc-block-face mc-block-top mc-grass-top"></div>
+        <div class="mc-block-face mc-block-front mc-dirt-front"></div>
+        <div class="mc-block-face mc-block-side mc-dirt-side"></div>
+      </div>
+      <div class="mc-float-block mc-block-diamond" style="--delay:1.5s;--x:85%;--y:35%;">
+        <div class="mc-block-face mc-block-top mc-diamond-top"></div>
+        <div class="mc-block-face mc-block-front mc-diamond-front"></div>
+        <div class="mc-block-face mc-block-side mc-diamond-side"></div>
+      </div>
+      <div class="mc-float-block mc-block-gold" style="--delay:0.8s;--x:72%;--y:18%;">
+        <div class="mc-block-face mc-block-top mc-gold-top"></div>
+        <div class="mc-block-face mc-block-front mc-gold-front"></div>
+        <div class="mc-block-face mc-block-side mc-gold-side"></div>
+      </div>
+      <div class="mc-float-block mc-block-tnt" style="--delay:2.2s;--x:20%;--y:40%;">
+        <div class="mc-block-face mc-block-top mc-tnt-top"></div>
+        <div class="mc-block-face mc-block-front mc-tnt-front"></div>
+        <div class="mc-block-face mc-block-side mc-tnt-side"></div>
+      </div>
+    </div>
+    <div class="mc-characters">
+      <div class="mc-steve" id="mc-steve"></div>
+      <div class="mc-creeper" id="mc-creeper"></div>
+    </div>
+    <div class="mc-login-panel" id="mc-login-panel">
+      <div class="mc-panel-inner">
+        <div class="mc-title-wrapper">
+          <h1 class="mc-title">
+            <span class="mc-title-life">LIFE</span>
+            <span class="mc-title-rpg">RPG</span>
+          </h1>
+          <p class="mc-subtitle">⚔ Begin Your Adventure ⚔</p>
+        </div>
+        <form class="mc-form" id="mc-login-form">
+          <div class="mc-input-group">
+            <label class="mc-label" for="mc-username">Player Name</label>
+            <input type="text" id="mc-username" class="mc-input" placeholder="Enter your name..." autocomplete="off" required>
+            <div class="mc-input-icon">🗡️</div>
+          </div>
+          <div class="mc-input-group">
+            <label class="mc-label" for="mc-password">Secret Code</label>
+            <input type="password" id="mc-password" class="mc-input" placeholder="••••••••" autocomplete="off">
+            <div class="mc-input-icon">🔑</div>
+          </div>
+          <button type="submit" class="mc-button mc-button-play" id="mc-play-btn">
+            <span class="mc-btn-text">▶ PLAY</span>
+            <div class="mc-btn-shine"></div>
+          </button>
+          <button type="button" class="mc-button mc-button-secondary">
+            <span class="mc-btn-text">⚙ OPTIONS</span>
+          </button>
+        </form>
+        <div class="mc-version">Life RPG v1.14.2 — Adventuring Developer Update</div>
+      </div>
+    </div>
+    <div class="mc-torch mc-torch-left" id="mc-torch-left">
+      <div class="mc-torch-stick"></div>
+      <div class="mc-torch-flame"></div>
+    </div>
+    <div class="mc-torch mc-torch-right" id="mc-torch-right">
+      <div class="mc-torch-stick"></div>
+      <div class="mc-torch-flame"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ MAIN APP ═══════════════ -->
+  <canvas id="ambient-particles"></canvas>
+  <canvas id="xp-particles"></canvas>
+
+  <div class="app-shell" id="app-shell" style="display:none;">
+
+    <!-- ═══ HEADER ═══ -->
+    <header class="app-header" id="app-header">
+      <div class="header-left">
+        <div class="logo-group">
+          <div class="logo-icon" id="logo-icon">
+            <svg viewBox="0 0 48 48" width="36" height="36" fill="none">
+              <line x1="8" y1="40" x2="28" y2="12" stroke="var(--gold-primary)" stroke-width="3" stroke-linecap="round"/>
+              <line x1="22" y1="18" x2="34" y2="6" stroke="var(--gold-primary)" stroke-width="3" stroke-linecap="round"/>
+              <line x1="18" y1="22" x2="12" y2="28" stroke="var(--gold-primary)" stroke-width="2.5" stroke-linecap="round"/>
+              <circle cx="28" cy="12" r="3" fill="var(--gold-primary)" opacity="0.8"/>
+              <path d="M36 8 C28 18, 24 28, 22 40" stroke="var(--blue-soft)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+              <path d="M36 8 C40 6, 42 4, 44 2 C42 6, 40 10, 36 8Z" fill="var(--blue-soft)" opacity="0.7"/>
+            </svg>
+          </div>
+          <h1 class="logo-text">LIFE <span class="logo-rpg">RPG</span></h1>
+        </div>
+      </div>
+      <div class="header-center">
+        <div class="header-stat" id="header-streak">
+          <span class="stat-icon">🔥</span>
+          <span class="stat-value" id="streak-count">12</span>
+          <span class="stat-label">Streak</span>
+        </div>
+        <div class="header-stat" id="header-date">
+          <span class="stat-icon">📅</span>
+          <span class="stat-value" id="current-date"></span>
+        </div>
+      </div>
+      <div class="header-right">
+        <!-- Reminder Clock -->
+        <button class="reminder-btn" id="reminder-btn" aria-label="Reminders">
+          <span class="reminder-icon">🕐</span>
+          <span class="reminder-badge" id="reminder-badge" style="display:none;">0</span>
+        </button>
+        <!-- Profile & Avatar Customizer Trigger -->
+        <button class="profile-header-btn" id="profile-btn" aria-label="Edit Profile & Avatar" title="Click to customize your Avatar & Profile">
+          <div class="avatar-container" id="avatar-container">
+            <div class="avatar-ring"></div>
+            <canvas id="pixel-avatar" width="48" height="48"></canvas>
+            <div class="avatar-level-badge" id="avatar-level-badge">14</div>
+          </div>
+          <div class="header-profile-info">
+            <span class="header-player-name" id="header-player-name">Adventurer</span>
+            <span class="header-edit-badge">✏️ Edit</span>
+          </div>
+        </button>
+      </div>
+    </header>
+
+    <!-- ═══ REMINDER PANEL (Dropdown) ═══ -->
+    <div class="reminder-panel" id="reminder-panel" style="display:none;">
+      <div class="reminder-panel-header">
+        <span class="section-icon">🔔</span>
+        <h3>Reminders</h3>
+        <button class="reminder-add-btn" id="reminder-add-btn">+ Add</button>
+      </div>
+      <div class="reminder-form" id="reminder-form" style="display:none;">
+        <input type="text" id="reminder-text" class="mc-input-sm" placeholder="Reminder text...">
+        <input type="time" id="reminder-time" class="mc-input-sm">
+        <button class="btn-pixel btn-sm btn-green" id="reminder-save-btn">Save</button>
+      </div>
+      <ul class="reminder-list" id="reminder-list"></ul>
+      <p class="reminder-empty" id="reminder-empty">No reminders set</p>
+    </div>
+
+    <!-- ═══ TOAST CONTAINER ═══ -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!--            PAGE CONTAINERS                 -->
+    <!-- ═══════════════════════════════════════════ -->
+
+    <!-- ═══ PAGE 1: DASHBOARD ═══ -->
+    <main class="page page-dashboard active" id="page-dashboard">
+      <div class="dash-grid">
+
+        <!-- Character Card -->
+        <div class="dash-card glass-card dash-character" id="dash-character">
+          <div class="character-header">
+            <div class="character-avatar-large">
+              <canvas id="pixel-avatar-large" width="80" height="80"></canvas>
+              <div class="avatar-glow"></div>
+            </div>
+            <div class="character-info">
+              <h2 class="character-name" id="character-name">Adventurer</h2>
+              <div class="character-class">
+                <span class="level-badge" id="level-badge">LVL 14</span>
+                <span class="class-name">ADVENTURING DEVELOPER</span>
+              </div>
+            </div>
+          </div>
+          <div class="xp-section">
+            <div class="xp-header">
+              <span class="xp-label">EXPERIENCE</span>
+              <span class="xp-value" id="xp-display">2,480 / 3,000 XP</span>
+            </div>
+            <div class="xp-bar-container" id="xp-bar-container">
+              <div class="xp-bar-bg">
+                <div class="xp-bar-fill" id="xp-bar-fill" style="width:82.6%">
+                  <div class="xp-bar-shimmer"></div>
+                </div>
+              </div>
+              <div class="xp-gain-popup" id="xp-gain-popup">+20 XP</div>
+            </div>
+          </div>
+          <div class="stats-row">
+            <div class="mini-stat"><span>❤️</span><span id="health-display">450/500</span></div>
+            <div class="mini-stat"><span>💰</span><span id="gold-display" class="gold-text">1,240</span></div>
+            <div class="mini-stat"><span>💎</span><span id="diamond-display" class="diamond-text">85</span></div>
+          </div>
+        </div>
+
+        <!-- Workmate Companion -->
+        <div class="dash-card glass-card dash-workmate" id="dash-workmate">
+          <div class="workmate-header">
+            <canvas id="workmate-avatar" width="48" height="48"></canvas>
+            <div class="workmate-info">
+              <span class="workmate-name">Pixel Fox</span>
+              <span class="workmate-role">Your Workmate</span>
+            </div>
+            <div class="workmate-status online">● Online</div>
+          </div>
+          <div class="workmate-chat" id="workmate-chat">
+            <div class="workmate-bubble" id="workmate-bubble">
+              <span class="workmate-text" id="workmate-text"></span>
+              <span class="workmate-cursor" id="workmate-cursor">▌</span>
+            </div>
+          </div>
+          <button class="btn-pixel btn-sm btn-blue" id="workmate-talk-btn">💬 Ask Workmate</button>
+        </div>
+
+        <!-- Daily Routine Stats (Radar Chart) -->
+        <div class="dash-card glass-card dash-radar" id="dash-radar">
+          <div class="card-header">
+            <span class="section-icon">📊</span>
+            <h3>Daily Routine</h3>
+          </div>
+          <canvas id="radar-chart" width="260" height="260"></canvas>
+        </div>
+
+        <!-- Strength & Weakness -->
+        <div class="dash-card glass-card dash-sw" id="dash-sw">
+          <div class="sw-column">
+            <h4 class="sw-title sw-str">⚔️ Strengths</h4>
+            <div class="sw-bar-group" id="strength-bars"></div>
+          </div>
+          <div class="sw-divider"></div>
+          <div class="sw-column">
+            <h4 class="sw-title sw-weak">🛡️ Weaknesses</h4>
+            <div class="sw-bar-group" id="weakness-bars"></div>
+          </div>
+        </div>
+
+        <!-- AI Questmaster Card -->
+        <div class="dash-card glass-card dash-questmaster" id="dash-questmaster">
+          <div class="card-header questmaster-header">
+            <div class="qm-title-group">
+              <span class="section-icon qm-icon-anim">🧙‍♂️</span>
+              <div>
+                <h3>AI Questmaster</h3>
+                <span class="qm-badge">⚡ Gemini Oracle</span>
+              </div>
+            </div>
+            <button class="btn-pixel btn-xs btn-purple" id="qm-settings-btn" title="Configure Gemini API Key">⚙️ Key</button>
+          </div>
+
+          <p class="qm-desc">Speak your real-world objective. The Oracle shall forge a balanced quest chain with XP & Gold rewards.</p>
+
+          <!-- Prompt Preset Chips -->
+          <div class="qm-chips">
+            <button class="qm-chip" data-prompt="Train for a 10km Marathon in 8 weeks">🏃 10K Marathon</button>
+            <button class="qm-chip" data-prompt="Build and deploy a full-stack React & Node web app">💻 Full-Stack App</button>
+            <button class="qm-chip" data-prompt="Launch a SaaS product and acquire first 100 users">🚀 Launch SaaS</button>
+            <button class="qm-chip" data-prompt="Read 12 non-fiction books on psychology & design">📚 Read 12 Books</button>
+          </div>
+
+          <!-- Input Box -->
+          <div class="qm-input-wrapper">
+            <textarea id="qm-objective-input" class="qm-textarea" placeholder="e.g. Master TypeScript and build 3 full-stack portfolio apps this month..." rows="2"></textarea>
+            <div class="qm-input-glow"></div>
+          </div>
+
+          <!-- Action Button -->
+          <div class="qm-actions">
+            <button class="btn-pixel btn-summon" id="qm-summon-btn">
+              <span class="summon-sparkle">✨</span>
+              <span class="summon-text">SUMMON QUESTS</span>
+              <div class="summon-shimmer"></div>
+            </button>
+          </div>
+
+          <!-- Loading State (Tactile Micro-Animations) -->
+          <div class="qm-loading" id="qm-loading" style="display:none;">
+            <div class="arcane-circle-wrapper">
+              <div class="arcane-circle outer-ring"></div>
+              <div class="arcane-circle middle-ring"></div>
+              <div class="arcane-circle inner-ring"></div>
+              <div class="arcane-core">🔮</div>
+              <canvas id="qm-sparkle-canvas" width="200" height="200"></canvas>
+            </div>
+            <div class="qm-loading-status" id="qm-loading-status">Channeling the Gemini Oracle...</div>
+            <div class="qm-loading-progress-bar">
+              <div class="qm-loading-fill" id="qm-loading-fill"></div>
+            </div>
+          </div>
+
+          <!-- Generated Quest Results -->
+          <div class="qm-results" id="qm-results" style="display:none;">
+            <div class="qm-results-header">
+              <div class="qm-results-summary" id="qm-results-summary"></div>
+              <button class="btn-pixel btn-sm btn-green" id="qm-accept-all-btn">⚔️ Accept All Quests</button>
+            </div>
+            <div class="qm-quest-cards" id="qm-quest-cards"></div>
+          </div>
+        </div>
+
+        <!-- To-Do Lists (Tabbed) -->
+        <div class="dash-card glass-card dash-todos" id="dash-todos">
+          <div class="card-header">
+            <span class="section-icon">📋</span>
+            <h3>Quest Board</h3>
+            <div class="dash-todo-actions">
+              <button class="btn-pixel btn-xs btn-purple" id="open-qm-scroll-btn">🧙‍♂️ AI Summon</button>
+              <button class="btn-pixel btn-sm btn-green" id="add-task-btn">+ New</button>
+            </div>
+          </div>
+          <div class="todo-tabs">
+            <button class="todo-tab active" data-tab="pending">⏳ Pending <span class="tab-count" id="pending-count">3</span></button>
+            <button class="todo-tab" data-tab="upcoming">📅 Upcoming <span class="tab-count" id="upcoming-count">2</span></button>
+            <button class="todo-tab" data-tab="completed">✅ Done <span class="tab-count" id="completed-count">5</span></button>
+          </div>
+          <div class="todo-panel active" id="todo-pending">
+            <ul class="quest-list" id="pending-list"></ul>
+          </div>
+          <div class="todo-panel" id="todo-upcoming">
+            <ul class="quest-list" id="upcoming-list"></ul>
+          </div>
+          <div class="todo-panel" id="todo-completed">
+            <ul class="quest-list" id="completed-list"></ul>
+          </div>
+        </div>
+
+        <!-- Activity Log -->
+        <div class="dash-card glass-card dash-log" id="dash-log">
+          <div class="card-header">
+            <span class="section-icon">📜</span>
+            <h3>Activity Log</h3>
+          </div>
+          <ul class="log-list" id="activity-log"></ul>
+        </div>
+      </div>
+
+      <!-- Add Task Modal -->
+      <div class="modal-overlay" id="task-modal" style="display:none;">
+        <div class="modal-panel glass-card">
+          <h3 class="modal-title">⚔️ New Quest</h3>
+          <input type="text" id="task-name-input" class="mc-input-sm" placeholder="Quest name...">
+          <div class="modal-row">
+            <select id="task-category" class="mc-input-sm">
+              <option value="pending">⏳ Pending</option>
+              <option value="upcoming">📅 Upcoming</option>
+            </select>
+            <select id="task-difficulty" class="mc-input-sm">
+              <option value="easy">Easy (10 XP)</option>
+              <option value="medium">Medium (20 XP)</option>
+              <option value="hard">Hard (40 XP)</option>
+              <option value="epic">Epic (80 XP)</option>
+            </select>
+          </div>
+          <div class="modal-actions">
+            <button class="btn-pixel btn-green" id="task-save-btn">Create Quest</button>
+      <!-- Gemini Key Modal -->
+      <div class="modal-overlay" id="qm-key-modal" style="display:none;">
+        <div class="modal-panel glass-card">
+          <h3 class="modal-title">🔮 Gemini Oracle Settings</h3>
+          <p class="modal-subtitle">Enter your Gemini API Key to summon custom quests directly via Google's Gemini models. (Optional — offline procedural generator active by default).</p>
+          <input type="password" id="qm-api-key-input" class="mc-input-sm" placeholder="AIzaSy...">
+          <div class="modal-actions">
+            <button class="btn-pixel btn-green" id="qm-key-save-btn">Save Key</button>
+            <button class="btn-pixel btn-gray" id="qm-key-cancel-btn">Close</button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ═══ PAGE 2: SCREEN TIME ═══ -->
+    <main class="page page-screentime" id="page-screentime">
+      <div class="st-grid">
+
+        <!-- Today's Usage -->
+        <div class="dash-card glass-card st-today" id="st-today">
+          <div class="card-header">
+            <span class="section-icon">📱</span>
+            <h3>Today's Screen Time</h3>
+            <span class="st-total" id="st-total-hours">6.5h</span>
+          </div>
+          <div class="st-bars" id="st-bars"></div>
+        </div>
+
+        <!-- Weekly Trend -->
+        <div class="dash-card glass-card st-weekly" id="st-weekly">
+          <div class="card-header">
+            <span class="section-icon">📈</span>
+            <h3>Weekly Trend</h3>
+          </div>
+          <canvas id="weekly-chart" width="600" height="220"></canvas>
+          <div class="st-legend">
+            <span class="legend-item legend-productive">● Productive</span>
+            <span class="legend-item legend-unproductive">● Unproductive</span>
+          </div>
+        </div>
+
+        <!-- App Categories -->
+        <div class="dash-card glass-card st-categories" id="st-categories">
+          <div class="card-header">
+            <span class="section-icon">📂</span>
+            <h3>Categories</h3>
+            <button class="btn-pixel btn-sm btn-green" id="add-activity-btn">+ Log</button>
+          </div>
+          <div class="cat-grid" id="cat-grid"></div>
+        </div>
+
+        <!-- Daily Limits -->
+        <div class="dash-card glass-card st-limits" id="st-limits">
+          <div class="card-header">
+            <span class="section-icon">⚠️</span>
+            <h3>Daily Limits</h3>
+          </div>
+          <div class="limit-list" id="limit-list"></div>
+        </div>
+      </div>
+
+      <!-- Add Activity Modal -->
+      <div class="modal-overlay" id="activity-modal" style="display:none;">
+        <div class="modal-panel glass-card">
+          <h3 class="modal-title">📱 Log Activity</h3>
+          <input type="text" id="activity-name-input" class="mc-input-sm" placeholder="App / Activity name...">
+          <div class="modal-row">
+            <select id="activity-category" class="mc-input-sm">
+              <option value="productive">🟢 Productive</option>
+              <option value="neutral">🔵 Neutral</option>
+              <option value="unproductive">🔴 Unproductive</option>
+            </select>
+            <input type="number" id="activity-hours" class="mc-input-sm" placeholder="Hours" min="0.5" max="24" step="0.5">
+          </div>
+          <div class="modal-actions">
+            <button class="btn-pixel btn-green" id="activity-save-btn">Log Activity</button>
+            <button class="btn-pixel btn-gray" id="activity-cancel-btn">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ═══ PAGE 3: TIMETABLE ═══ -->
+    <main class="page page-timetable" id="page-timetable">
+      <div class="tt-grid">
+
+        <!-- Stopwatch -->
+        <div class="dash-card glass-card tt-stopwatch" id="tt-stopwatch">
+          <div class="card-header">
+            <span class="section-icon">⏱️</span>
+            <h3>Stopwatch</h3>
+          </div>
+          <div class="sw-display">
+            <span class="sw-time" id="sw-time">00:00:00</span>
+            <span class="sw-ms" id="sw-ms">.00</span>
+          </div>
+          <div class="sw-label-input">
+            <input type="text" id="sw-task-label" class="mc-input-sm" placeholder="What are you working on?">
+          </div>
+          <div class="sw-controls">
+            <button class="btn-pixel btn-green" id="sw-start-btn">▶ Start</button>
+            <button class="btn-pixel btn-yellow" id="sw-lap-btn" disabled>🏁 Lap</button>
+            <button class="btn-pixel btn-red" id="sw-reset-btn" disabled>⟲ Reset</button>
+          </div>
+          <div class="sw-laps" id="sw-laps"></div>
+        </div>
+
+        <!-- Pomodoro Timer -->
+        <div class="dash-card glass-card tt-pomodoro" id="tt-pomodoro">
+          <div class="card-header">
+            <span class="section-icon">🍅</span>
+            <h3>Work Timer</h3>
+            <span class="pomo-session" id="pomo-session">Session 1/4</span>
+          </div>
+          <div class="pomo-ring-container">
+            <canvas id="pomo-ring" width="200" height="200"></canvas>
+            <div class="pomo-center">
+              <span class="pomo-time" id="pomo-time">25:00</span>
+              <span class="pomo-mode" id="pomo-mode">WORK</span>
+            </div>
+          </div>
+          <div class="pomo-controls">
+            <button class="btn-pixel btn-green" id="pomo-start-btn">▶ Start</button>
+            <button class="btn-pixel btn-gray" id="pomo-skip-btn">⏭ Skip</button>
+          </div>
+          <div class="pomo-settings">
+            <label>Work: <input type="number" id="pomo-work-min" class="mc-input-xs" value="25" min="1" max="60">m</label>
+            <label>Break: <input type="number" id="pomo-break-min" class="mc-input-xs" value="5" min="1" max="30">m</label>
+          </div>
+        </div>
+
+        <!-- Weekly Timetable Grid -->
+        <div class="dash-card glass-card tt-schedule" id="tt-schedule">
+          <div class="card-header">
+            <span class="section-icon">📅</span>
+            <h3>Weekly Timetable</h3>
+            <button class="btn-pixel btn-sm btn-green" id="add-block-btn">+ Add Block</button>
+          </div>
+          <div class="tt-grid-wrapper">
+            <div class="tt-time-labels" id="tt-time-labels"></div>
+            <div class="tt-day-grid" id="tt-day-grid"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add Block Modal -->
+      <div class="modal-overlay" id="block-modal" style="display:none;">
+        <div class="modal-panel glass-card">
+          <h3 class="modal-title">📅 Add Timetable Block</h3>
+          <input type="text" id="block-name-input" class="mc-input-sm" placeholder="Activity name...">
+          <div class="modal-row">
+            <select id="block-day" class="mc-input-sm">
+              <option value="0">Monday</option>
+              <option value="1">Tuesday</option>
+              <option value="2">Wednesday</option>
+              <option value="3">Thursday</option>
+              <option value="4">Friday</option>
+              <option value="5">Saturday</option>
+              <option value="6">Sunday</option>
+            </select>
+            <select id="block-color" class="mc-input-sm">
+              <option value="green">🟢 Work</option>
+              <option value="blue">🔵 Study</option>
+              <option value="red">🔴 Exercise</option>
+              <option value="gold">🟡 Personal</option>
+              <option value="purple">🟣 Social</option>
+            </select>
+          </div>
+          <div class="modal-row">
+            <label>From: <input type="time" id="block-start" class="mc-input-sm" value="09:00"></label>
+            <label>To: <input type="time" id="block-end" class="mc-input-sm" value="10:00"></label>
+          </div>
+          <div class="modal-actions">
+            <button class="btn-pixel btn-green" id="block-save-btn">Add Block</button>
+            <button class="btn-pixel btn-gray" id="block-cancel-btn">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ═══ PAGE 4: ACHIEVEMENTS ═══ -->
+    <main class="page page-achievements" id="page-achievements">
+      <div class="ach-grid">
+
+        <!-- Level Progress -->
+        <div class="dash-card glass-card ach-level" id="ach-level">
+          <div class="card-header">
+            <span class="section-icon">⭐</span>
+            <h3>Level Progress</h3>
+          </div>
+          <div class="level-ring-container">
+            <canvas id="level-ring" width="180" height="180"></canvas>
+            <div class="level-center">
+              <span class="level-num" id="level-num">14</span>
+              <span class="level-label">LEVEL</span>
+            </div>
+          </div>
+          <div class="level-stats">
+            <div class="level-stat"><span class="level-stat-label">Total XP</span><span class="level-stat-val" id="total-xp">24,480</span></div>
+            <div class="level-stat"><span class="level-stat-label">To Next</span><span class="level-stat-val" id="xp-to-next">520</span></div>
+          </div>
+        </div>
+
+        <!-- Diamond Points -->
+        <div class="dash-card glass-card ach-diamonds" id="ach-diamonds">
+          <div class="card-header">
+            <span class="section-icon">💎</span>
+            <h3>Diamond Points</h3>
+          </div>
+          <div class="diamond-display">
+            <div class="diamond-gem" id="diamond-gem">
+              <div class="diamond-shape"></div>
+              <div class="diamond-sparkle"></div>
+            </div>
+            <span class="diamond-count" id="diamond-count">85</span>
+          </div>
+          <div class="diamond-history" id="diamond-history"></div>
+        </div>
+
+        <!-- XP Timeline (Step Graph) -->
+        <div class="dash-card glass-card ach-timeline" id="ach-timeline">
+          <div class="card-header">
+            <span class="section-icon">📈</span>
+            <h3>XP Timeline (30 Days)</h3>
+          </div>
+          <canvas id="xp-timeline-chart" width="700" height="200"></canvas>
+        </div>
+
+        <!-- Achievement Gallery -->
+        <div class="dash-card glass-card ach-gallery" id="ach-gallery">
+          <div class="card-header">
+            <span class="section-icon">🏆</span>
+            <h3>Achievements</h3>
+            <span class="ach-progress-text" id="ach-progress-text">8 / 16</span>
+          </div>
+          <div class="badge-grid" id="badge-grid"></div>
+        </div>
+
+        <!-- Goal Stepping Stones -->
+        <div class="dash-card glass-card ach-goals" id="ach-goals">
+          <div class="card-header">
+            <span class="section-icon">🗺️</span>
+            <h3>Goal Path</h3>
+          </div>
+          <div class="goal-path" id="goal-path"></div>
+        </div>
+
+        <!-- Mock Leaderboard -->
+        <div class="dash-card glass-card ach-leaderboard" id="ach-leaderboard">
+          <div class="card-header">
+            <span class="section-icon">🥇</span>
+            <h3>Leaderboard</h3>
+          </div>
+          <div class="lb-list" id="lb-list"></div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ═══ BIG CARTOON ROBOT COMPANION (Persistent, bottom-left) ═══ -->
+    <div class="companion" id="companion">
+      <div class="companion-bubble" id="companion-bubble">
+        <div class="companion-bubble-header">
+          <span class="companion-bot-badge">🤖 ROBO-COMPANION v2.4</span>
+          <button class="companion-close-btn" id="companion-close-btn" title="Minimize">×</button>
+        </div>
+        <span class="companion-text" id="companion-text">Greetings Adventurer! I am your AI Workmate. Click me anytime for battle tactics! ⚡</span>
+        <div class="companion-chips">
+          <button class="comp-chip" id="comp-advice-btn">💡 Advice</button>
+          <button class="comp-chip" id="comp-cheer-btn">🎉 Cheer</button>
+          <button class="comp-chip" id="comp-joke-btn">😄 Joke</button>
+        </div>
+      </div>
+      <div class="companion-sprite" id="companion-sprite" title="Click me to talk!">
+        <canvas id="companion-canvas" width="112" height="112"></canvas>
+        <div class="companion-thruster-glow"></div>
+        <div class="companion-click-hint">💬 POKE ME!</div>
+      </div>
+    </div>
+
+    <!-- ═══ HERO PROFILE & AVATAR STUDIO MODAL ═══ -->
+    <div class="modal-overlay" id="profile-modal" style="display:none;">
+      <div class="modal-panel glass-card profile-studio-panel">
+        <div class="profile-studio-header">
+          <div class="modal-title-group">
+            <span class="modal-icon-anim">🛡️</span>
+            <div>
+              <h3 class="modal-title">Hero Profile & Avatar Studio</h3>
+              <p class="modal-subtitle">Customize your pixel hero appearance, archetype, and battle identity.</p>
+            </div>
+          </div>
+          <button class="modal-close-btn" id="profile-modal-close-btn">✕</button>
+        </div>
+
+        <div class="profile-studio-grid">
+          <!-- Left: Live Avatar Preview -->
+          <div class="profile-preview-col">
+            <div class="profile-avatar-stage">
+              <div class="stage-pedestal"></div>
+              <div class="stage-aura"></div>
+              <canvas id="profile-preview-canvas" width="128" height="128"></canvas>
+              <div class="stage-level-badge" id="preview-level-badge">LVL 14</div>
+            </div>
+            <div class="preview-hero-name" id="preview-hero-name">Adventurer</div>
+            <div class="preview-hero-title" id="preview-hero-title">ADVENTURING DEVELOPER</div>
+            <button class="btn-pixel btn-xs btn-purple" id="avatar-randomize-btn">🎲 Randomize Hero</button>
+          </div>
+
+          <!-- Right: Customizer Controls -->
+          <div class="profile-controls-col">
+            
+            <!-- Hero Archetype -->
+            <div class="custom-group">
+              <label class="custom-label">Hero Archetype</label>
+              <div class="custom-archetype-grid">
+                <button class="archetype-btn active" data-archetype="adventurer">🗡️ Adventurer</button>
+                <button class="archetype-btn" data-archetype="wizard">🧙‍♂️ Wizard</button>
+                <button class="archetype-btn" data-archetype="robot">🤖 Cyber Bot</button>
+                <button class="archetype-btn" data-archetype="ninja">🥷 Ninja</button>
+                <button class="archetype-btn" data-archetype="knight">🛡️ Knight</button>
+                <button class="archetype-btn" data-archetype="ranger">🏹 Ranger</button>
+              </div>
+            </div>
+
+            <!-- Skin / Chassis Tone -->
+            <div class="custom-group">
+              <label class="custom-label">Skin Tone / Chassis</label>
+              <div class="color-palette-row" id="skin-palette">
+                <button class="color-chip" style="--c:#F5D0A9" data-color="#F5D0A9" title="Fair"></button>
+                <button class="color-chip active" style="--c:#C49A6C" data-color="#C49A6C" title="Tan"></button>
+                <button class="color-chip" style="--c:#8D5524" data-color="#8D5524" title="Bronze"></button>
+                <button class="color-chip" style="--c:#4A2E18" data-color="#4A2E18" title="Dark"></button>
+                <button class="color-chip" style="--c:#38BDF8" data-color="#38BDF8" title="Cyber Cyan"></button>
+                <button class="color-chip" style="--c:#A855F7" data-color="#A855F7" title="Arcane Violet"></button>
+              </div>
+            </div>
+
+            <!-- Hair Style & Headgear -->
+            <div class="custom-group">
+              <label class="custom-label">Hair Style / Headgear</label>
+              <div class="custom-toggle-grid" id="hair-styles">
+                <button class="toggle-btn active" data-style="spiky">Spiky Hair</button>
+                <button class="toggle-btn" data-style="long">Long Flowing</button>
+                <button class="toggle-btn" data-style="ninja">Ninja Mask</button>
+                <button class="toggle-btn" data-style="helmet">Knight Helmet</button>
+                <button class="toggle-btn" data-style="wizard">Wizard Hat</button>
+                <button class="toggle-btn" data-style="cyber">Cyber Visor</button>
+              </div>
+            </div>
+
+            <!-- Hair / Headgear Color -->
+            <div class="custom-group">
+              <label class="custom-label">Hair / Headgear Color</label>
+              <div class="color-palette-row" id="hair-palette">
+                <button class="color-chip active" style="--c:#3B2213" data-color="#3B2213" title="Chestnut Brown"></button>
+                <button class="color-chip" style="--c:#FACC15" data-color="#FACC15" title="Gold Blonde"></button>
+                <button class="color-chip" style="--c:#E11D48" data-color="#E11D48" title="Ruby Crimson"></button>
+                <button class="color-chip" style="--c:#06B6D4" data-color="#06B6D4" title="Neon Cyan"></button>
+                <button class="color-chip" style="--c:#8B5CF6" data-color="#8B5CF6" title="Mystic Purple"></button>
+                <button class="color-chip" style="--c:#E2E8F0" data-color="#E2E8F0" title="Silver White"></button>
+              </div>
+            </div>
+
+            <!-- Outfit & Armor -->
+            <div class="custom-group">
+              <label class="custom-label">Outfit / Armor Class</label>
+              <div class="custom-toggle-grid" id="outfit-styles">
+                <button class="toggle-btn active" data-style="hoodie">Dev Hoodie</button>
+                <button class="toggle-btn" data-style="armor">Plate Armor</button>
+                <button class="toggle-btn" data-style="robe">Mage Robe</button>
+                <button class="toggle-btn" data-style="cybersuit">Cyber Suit</button>
+                <button class="toggle-btn" data-style="tunic">Ranger Tunic</button>
+              </div>
+            </div>
+
+            <!-- Outfit Color -->
+            <div class="custom-group">
+              <label class="custom-label">Outfit Color</label>
+              <div class="color-palette-row" id="outfit-palette">
+                <button class="color-chip active" style="--c:#38B2AC" data-color="#38B2AC" title="Teal"></button>
+                <button class="color-chip" style="--c:#3B82F6" data-color="#3B82F6" title="Royal Blue"></button>
+                <button class="color-chip" style="--c:#EF4444" data-color="#EF4444" title="Crimson"></button>
+                <button class="color-chip" style="--c:#10B981" data-color="#10B981" title="Emerald"></button>
+                <button class="color-chip" style="--c:#8B5CF6" data-color="#8B5CF6" title="Arcane"></button>
+                <button class="color-chip" style="--c:#1E293B" data-color="#1E293B" title="Obsidian"></button>
+              </div>
+            </div>
+
+            <!-- Player Identity Inputs -->
+            <div class="custom-group">
+              <label class="custom-label" for="profile-name-input">Player Name</label>
+              <input type="text" id="profile-name-input" class="mc-input-sm" placeholder="Enter your hero name..." value="Adventurer">
+            </div>
+
+            <div class="custom-group">
+              <label class="custom-label" for="profile-title-input">Class Title</label>
+              <select id="profile-title-input" class="mc-input-sm">
+                <option value="ADVENTURING DEVELOPER">ADVENTURING DEVELOPER</option>
+                <option value="GRAND ARCHMAGE">GRAND ARCHMAGE</option>
+                <option value="CYBERNETIC ROGUE">CYBERNETIC ROGUE</option>
+                <option value="FULL-STACK PALADIN">FULL-STACK PALADIN</option>
+                <option value="NEURAL ARCHITECT">NEURAL ARCHITECT</option>
+                <option value="LEGENDARY HERO">LEGENDARY HERO</option>
+              </select>
+            </div>
+
+            <div class="custom-group">
+              <label class="custom-label" for="profile-motto-input">Hero Motto / Bio</label>
+              <input type="text" id="profile-motto-input" class="mc-input-sm" placeholder="Your battle motto..." value="Leveling up real life, one quest at a time!">
+            </div>
+
+          </div>
+        </div>
+
+        <div class="profile-studio-actions">
+          <button class="btn-pixel btn-green btn-lg" id="profile-save-btn">💾 SAVE PROFILE</button>
+          <button class="btn-pixel btn-gray" id="profile-cancel-btn">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ BOTTOM NAV (Minecraft Hotbar) ═══ -->
+    <nav class="hotbar" id="hotbar">
+      <div class="hotbar-inner">
+        <button class="hotbar-slot active" data-page="dashboard" id="slot-dashboard" aria-label="Dashboard">
+          <span class="hotbar-icon">🏠</span>
+          <span class="hotbar-label">Dashboard</span>
+          <div class="hotbar-glow"></div>
+        </button>
+        <button class="hotbar-slot" data-page="screentime" id="slot-screentime" aria-label="Screen Time">
+          <span class="hotbar-icon">📱</span>
+          <span class="hotbar-label">Screen Time</span>
+          <div class="hotbar-glow"></div>
+        </button>
+        <button class="hotbar-slot" data-page="timetable" id="slot-timetable" aria-label="Timetable">
+          <span class="hotbar-icon">⏰</span>
+          <span class="hotbar-label">Timetable</span>
+          <div class="hotbar-glow"></div>
+        </button>
+        <button class="hotbar-slot" data-page="achievements" id="slot-achievements" aria-label="Achievements">
+          <span class="hotbar-icon">🏆</span>
+          <span class="hotbar-label">Achievements</span>
+          <div class="hotbar-glow"></div>
+        </button>
+      </div>
+    </nav>
+
+  </div>
+
+  <script src="login.js?v=3"></script>
+  <script src="app.js?v=profile_robot"></script>
+</body>
+</html>
