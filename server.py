@@ -14,6 +14,10 @@ import urllib.parse
 from datetime import datetime
 import mimetypes
 
+mimetypes.add_type("video/webm", ".webm")
+mimetypes.add_type("video/mp4", ".mp4")
+mimetypes.add_type("image/png", ".png")
+
 PORT = 8080
 DB_FILE = os.path.join(os.path.dirname(__file__), "liferpg.db")
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
