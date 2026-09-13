@@ -18,3 +18,5 @@ Authentication: Supabase Auth (for secure cross-device sync)<br>
 User Model: id, email, level, xp, gold, health<br>
 Quest Model: id, userId, title, description, xpReward, goldReward, completedAt<br>
 Inventory Model: id, userId, itemName, cost, isUnlocked<br>
+<h3>📌 Project URL : https://liferpg-subham-539.web.app </h3><br>
+<h3>📌 Presentation Explaining : https://drive.google.com/file/d/1YI7AT6J6mMjby1h01CUIbEn1d8qQbFOr/view?usp=drivesdk </h3>
